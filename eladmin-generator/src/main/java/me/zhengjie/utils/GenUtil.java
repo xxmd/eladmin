@@ -62,7 +62,7 @@ public class GenUtil {
         templateNames.add("Controller");
         templateNames.add("QueryCriteria");
         templateNames.add("Service");
-        templateNames.add("ServiceImpl");
+//        templateNames.add("ServiceImpl");
         templateNames.add("Repository");
         return templateNames;
     }
@@ -204,6 +204,10 @@ public class GenUtil {
         String className = StringUtils.toCapitalizeCamelCase(genConfig.getTableName());
         // 小写开头的类名
         String changeClassName = StringUtils.toCamelCase(genConfig.getTableName());
+        // 表名分隔处理
+        Boolean splitTableName = genConfig.getSplit();
+        String apiPath = splitTableName ? genConfig.getTableName().replaceAll("_", "/") : changeClassName;
+        String permissionPath = splitTableName ? genConfig.getTableName().replaceAll("_", ":") : changeClassName;
         // 判断是否去除表前缀
         if (StringUtils.isNotEmpty(genConfig.getPrefix())) {
             className = StringUtils.toCapitalizeCamelCase(StrUtil.removePrefix(genConfig.getTableName(), genConfig.getPrefix()));
@@ -214,6 +218,8 @@ public class GenUtil {
         genMap.put("className", className);
         // 保存小写开头的类名
         genMap.put("changeClassName", changeClassName);
+        genMap.put("apiPath", apiPath);
+        genMap.put("permissionPath", permissionPath);
         // 存在 Timestamp 字段
         genMap.put("hasTimestamp", false);
         // 查询类中存在 Timestamp 字段
@@ -276,7 +282,7 @@ public class GenUtil {
             // 主键存在字典
             if (StringUtils.isNotBlank(column.getDictName())) {
                 genMap.put("hasDict", true);
-                if(!dicts.contains(column.getDictName()))
+                if (!dicts.contains(column.getDictName()))
                     dicts.add(column.getDictName());
             }
 

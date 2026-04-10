@@ -91,7 +91,7 @@
             </#if>
             </#list>
         </#if>
-        <el-table-column v-if="checkPer(['admin','${changeClassName}:edit','${changeClassName}:del'])" label="操作" width="150px" align="center">
+        <el-table-column v-if="checkPer(['admin','${permissionPath}:edit','${permissionPath}:del'])" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
               :data="scope.row"
@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import crud${className} from '@/api/${changeClassName}'
+import crud${className} from '@/api/${apiPath}'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -123,14 +123,14 @@ export default {
   dicts: [<#if hasDict??><#list dicts as dict>'${dict}'<#if dict_has_next>, </#if></#list></#if>],
   </#if>
   cruds() {
-    return CRUD({ title: '${apiAlias}', url: 'api/${changeClassName}', idField: '${pkChangeColName}', sort: '${pkChangeColName},desc', crudMethod: { ...crud${className} }})
+    return CRUD({ title: '${apiAlias}', url: 'api/${apiPath}', idField: '${pkChangeColName}', sort: '${pkChangeColName},desc', crudMethod: { ...crud${className} }})
   },
   data() {
     return {
       permission: {
-        add: ['admin', '${changeClassName}:add'],
-        edit: ['admin', '${changeClassName}:edit'],
-        del: ['admin', '${changeClassName}:del']
+        add: ['admin', '${permissionPath}:add'],
+        edit: ['admin', '${permissionPath}:edit'],
+        del: ['admin', '${permissionPath}:del']
       },
       rules: {
         <#if isNotNullColumns??>

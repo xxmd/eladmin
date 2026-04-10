@@ -73,6 +73,9 @@ public class GenConfig implements Serializable {
     @ApiModelProperty(value = "表前缀")
     private String prefix;
 
+    @ApiModelProperty(value = "分隔表名")
+    private Boolean split = true;
+
     @ApiModelProperty(value = "是否覆盖")
     private Boolean cover = false;
 }

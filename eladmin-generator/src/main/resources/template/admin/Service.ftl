@@ -16,68 +16,139 @@
 package ${package}.service;
 
 import ${package}.domain.${className};
+<#if columns??>
+    <#list columns as column>
+        <#if column.columnKey = 'UNI'>
+            <#if column_index = 1>
+import me.zhengjie.exception.EntityExistException;
+            </#if>
+        </#if>
+    </#list>
+</#if>
+import me.zhengjie.utils.ValidationUtil;
+import me.zhengjie.utils.FileUtil;
+import lombok.RequiredArgsConstructor;
+import ${package}.repository.${className}Repository;
+import ${package}.service.${className}Service;
 import ${package}.service.dto.${className}Dto;
 import ${package}.service.dto.${className}QueryCriteria;
+import ${package}.service.mapstruct.${className}Mapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+<#if !auto && pkColumnType = 'Long'>
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.util.IdUtil;
+</#if>
+<#if !auto && pkColumnType = 'String'>
+import cn.hutool.core.util.IdUtil;
+</#if>
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import java.util.Map;
+import me.zhengjie.utils.PageUtil;
+import me.zhengjie.utils.QueryHelp;
 import java.util.List;
+import java.util.Map;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import me.zhengjie.utils.PageResult;
 
 /**
 * @website https://eladmin.vip
-* @description 服务接口
+* @description 服务实现
 * @author ${author}
 * @date ${date}
 **/
-public interface ${className}Service {
+@Service
+@RequiredArgsConstructor
+public class ${className}Service {
 
-    /**
-    * 查询数据分页
-    * @param criteria 条件
-    * @param pageable 分页参数
-    * @return Map<String,Object>
-    */
-    PageResult<${className}Dto> queryAll(${className}QueryCriteria criteria, Pageable pageable);
+    private final ${className}Repository ${changeClassName}Repository;
+    private final ${className}Mapper ${changeClassName}Mapper;
 
-    /**
-    * 查询所有数据不分页
-    * @param criteria 条件参数
-    * @return List<${className}Dto>
-    */
-    List<${className}Dto> queryAll(${className}QueryCriteria criteria);
+    public PageResult<${className}Dto> queryAll(${className}QueryCriteria criteria, Pageable pageable){
+        Page<${className}> page = ${changeClassName}Repository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root,criteria,criteriaBuilder),pageable);
+        return PageUtil.toPage(page.map(${changeClassName}Mapper::toDto));
+    }
 
-    /**
-     * 根据ID查询
-     * @param ${pkChangeColName} ID
-     * @return ${className}Dto
-     */
-    ${className}Dto findById(${pkColumnType} ${pkChangeColName});
+    public List<${className}Dto> queryAll(${className}QueryCriteria criteria){
+        return ${changeClassName}Mapper.toDto(${changeClassName}Repository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root,criteria,criteriaBuilder)));
+    }
 
-    /**
-    * 创建
-    * @param resources /
-    */
-    void create(${className} resources);
+    @Transactional
+    public ${className}Dto findById(${pkColumnType} ${pkChangeColName}) {
+        ${className} ${changeClassName} = ${changeClassName}Repository.findById(${pkChangeColName}).orElseGet(${className}::new);
+        ValidationUtil.isNull(${changeClassName}.get${pkCapitalColName}(),"${className}","${pkChangeColName}",${pkChangeColName});
+        return ${changeClassName}Mapper.toDto(${changeClassName});
+    }
 
-    /**
-    * 编辑
-    * @param resources /
-    */
-    void update(${className} resources);
+    @Transactional(rollbackFor = Exception.class)
+    public void create(${className} item) {
+<#if !auto && pkColumnType = 'Long'>
+        Snowflake snowflake = IdUtil.createSnowflake(1, 1);
+        item.set${pkCapitalColName}(snowflake.nextId()); 
+</#if>
+<#if !auto && pkColumnType = 'String'>
+        item.set${pkCapitalColName}(IdUtil.simpleUUID()); 
+</#if>
+<#if columns??>
+    <#list columns as column>
+    <#if column.columnKey = 'UNI'>
+        if(${changeClassName}Repository.findBy${column.capitalColumnName}(item.get${column.capitalColumnName}()) != null){
+            throw new EntityExistException(${className}.class,"${column.columnName}",item.get${column.capitalColumnName}());
+        }
+    </#if>
+    </#list>
+</#if>
+        ${changeClassName}Repository.save(item);
+    }
 
-    /**
-    * 多选删除
-    * @param ids /
-    */
-    void deleteAll(${pkColumnType}[] ids);
+    
+    @Transactional(rollbackFor = Exception.class)
+    public void update(${className} item) {
+        ${className} ${changeClassName} = ${changeClassName}Repository.findById(item.get${pkCapitalColName}()).orElseGet(${className}::new);
+        ValidationUtil.isNull( ${changeClassName}.get${pkCapitalColName}(),"${className}","id",item.get${pkCapitalColName}());
+<#if columns??>
+    <#list columns as column>
+        <#if column.columnKey = 'UNI'>
+        <#if column_index = 1>
+        ${className} ${changeClassName}1 = null;
+        </#if>
+        ${changeClassName}1 = ${changeClassName}Repository.findBy${column.capitalColumnName}(item.get${column.capitalColumnName}());
+        if(${changeClassName}1 != null && !${changeClassName}1.get${pkCapitalColName}().equals(${changeClassName}.get${pkCapitalColName}())){
+            throw new EntityExistException(${className}.class,"${column.columnName}",item.get${column.capitalColumnName}());
+        }
+        </#if>
+    </#list>
+</#if>
+        ${changeClassName}.copy(item);
+        ${changeClassName}Repository.save(${changeClassName});
+    }
 
-    /**
-    * 导出数据
-    * @param all 待导出的数据
-    * @param response /
-    * @throws IOException /
-    */
-    void download(List<${className}Dto> all, HttpServletResponse response) throws IOException;
+    
+    public void deleteAll(${pkColumnType}[] ids) {
+        for (${pkColumnType} ${pkChangeColName} : ids) {
+            ${changeClassName}Repository.deleteById(${pkChangeColName});
+        }
+    }
+
+    
+    public void download(List<${className}Dto> all, HttpServletResponse response) throws IOException {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (${className}Dto ${changeClassName} : all) {
+            Map<String,Object> map = new LinkedHashMap<>();
+        <#list columns as column>
+            <#if column.columnKey != 'PRI'>
+            <#if column.remark != ''>
+            map.put("${column.remark}", ${changeClassName}.get${column.capitalColumnName}());
+            <#else>
+            map.put(" ${column.changeColumnName}",  ${changeClassName}.get${column.capitalColumnName}());
+            </#if>
+            </#if>
+        </#list>
+            list.add(map);
+        }
+        FileUtil.downloadExcel(list, response);
+    }
 }
