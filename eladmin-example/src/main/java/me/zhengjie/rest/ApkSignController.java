@@ -43,20 +43,20 @@ import me.zhengjie.service.dto.ApkSignDto;
 @RequestMapping("/api/apk/sign")
 public class ApkSignController {
 
-    private final ApkSignService apk:signService;
+    private final ApkSignService apkSignService;
 
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('apk:sign:list')")
     public void exportApkSign(HttpServletResponse response, ApkSignQueryCriteria criteria) throws IOException {
-        apk:signService.download(apk:signService.queryAll(criteria), response);
+        apkSignService.download(apkSignService.queryAll(criteria), response);
     }
 
     @GetMapping
     @ApiOperation("查询应用签名")
     @PreAuthorize("@el.check('apk:sign:list')")
     public ResponseEntity<PageResult<ApkSignDto>> queryApkSign(ApkSignQueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(apk:signService.queryAll(criteria,pageable),HttpStatus.OK);
+        return new ResponseEntity<>(apkSignService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
     @PostMapping
@@ -64,7 +64,7 @@ public class ApkSignController {
     @ApiOperation("新增应用签名")
     @PreAuthorize("@el.check('apk:sign:add')")
     public ResponseEntity<Object> createApkSign(@Validated @RequestBody ApkSign item){
-        apk:signService.create(item);
+        apkSignService.create(item);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -73,7 +73,7 @@ public class ApkSignController {
     @ApiOperation("修改应用签名")
     @PreAuthorize("@el.check('apk:sign:edit')")
     public ResponseEntity<Object> updateApkSign(@Validated @RequestBody ApkSign item){
-        apk:signService.update(item);
+        apkSignService.update(item);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -82,7 +82,7 @@ public class ApkSignController {
     @ApiOperation("删除应用签名")
     @PreAuthorize("@el.check('apk:sign:del')")
     public ResponseEntity<Object> deleteApkSign(@ApiParam(value = "传ID数组[]") @RequestBody Long[] ids) {
-        apk:signService.deleteAll(ids);
+        apkSignService.deleteAll(ids);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
