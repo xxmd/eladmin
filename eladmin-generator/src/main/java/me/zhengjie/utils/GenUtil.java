@@ -132,7 +132,17 @@ public class GenUtil {
             String path = tempPath + "eladmin-web" + File.separator;
             String apiPath = path + "src" + File.separator + "api" + File.separator;
             String srcPath = path + "src" + File.separator + "views" + File.separator + genMap.get("changeClassName").toString() + File.separator;
-            String filePath = getFrontFilePath(templateName, apiPath, srcPath, genMap.get("changeClassName").toString());
+            if (genConfig.getSplit()) {
+                List<String> splitList = new ArrayList<>(Arrays.asList(genConfig.getTableName().split("_")));
+                if (splitList.size() > 1) {
+                    srcPath = path + "src" + File.separator + "views" + File.separator + String.join(File.separator, splitList) + File.separator;
+                    splitList.remove(splitList.size() - 1);
+                    apiPath += String.join(File.separator, splitList);
+                }
+            }
+            String[] split = genConfig.getTableName().split("_");
+            String apiName = genConfig.getSplit() && split.length > 1 ? split[split.length - 1] : genMap.get("changeClassName").toString();
+            String filePath = getFrontFilePath(templateName, apiPath, srcPath, apiName);
             assert filePath != null;
             File file = new File(filePath);
             // 如果非覆盖生成
@@ -170,8 +180,12 @@ public class GenUtil {
         templates = getFrontTemplateNames();
         for (String templateName : templates) {
             Template template = engine.getTemplate("front/" + templateName + ".ftl");
-            String filePath = getFrontFilePath(templateName, genConfig.getApiPath(), genConfig.getPath(), genMap.get("changeClassName").toString());
-
+            String apiName = genMap.get("changeClassName").toString();
+            if (genConfig.getSplit()) {
+                String[] split = genConfig.getTableName().split("_");
+                apiName = split[split.length - 1];
+            }
+            String filePath = getFrontFilePath(templateName, genConfig.getApiPath(), genConfig.getPath(), apiName);
             assert filePath != null;
             File file = new File(filePath);
 

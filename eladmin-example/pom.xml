@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>me.zhengjie</groupId>
-            <artifactId>eladmin-common</artifactId>
+            <artifactId>eladmin-tools</artifactId>
             <version>2.7</version>
         </dependency>
         <dependency>

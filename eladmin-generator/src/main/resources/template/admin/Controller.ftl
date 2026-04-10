@@ -43,20 +43,20 @@ import ${package}.service.dto.${className}Dto;
 @RequestMapping("/api/${apiPath}")
 public class ${className}Controller {
 
-    private final ${className}Service ${permissionPath}Service;
+    private final ${className}Service ${changeClassName}Service;
 
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('${permissionPath}:list')")
     public void export${className}(HttpServletResponse response, ${className}QueryCriteria criteria) throws IOException {
-        ${permissionPath}Service.download(${permissionPath}Service.queryAll(criteria), response);
+        ${changeClassName}Service.download(${changeClassName}Service.queryAll(criteria), response);
     }
 
     @GetMapping
     @ApiOperation("查询${apiAlias}")
     @PreAuthorize("@el.check('${permissionPath}:list')")
     public ResponseEntity<PageResult<${className}Dto>> query${className}(${className}QueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(${permissionPath}Service.queryAll(criteria,pageable),HttpStatus.OK);
+        return new ResponseEntity<>(${changeClassName}Service.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
     @PostMapping
@@ -64,7 +64,7 @@ public class ${className}Controller {
     @ApiOperation("新增${apiAlias}")
     @PreAuthorize("@el.check('${permissionPath}:add')")
     public ResponseEntity<Object> create${className}(@Validated @RequestBody ${className} item){
-        ${permissionPath}Service.create(item);
+        ${changeClassName}Service.create(item);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -73,7 +73,7 @@ public class ${className}Controller {
     @ApiOperation("修改${apiAlias}")
     @PreAuthorize("@el.check('${permissionPath}:edit')")
     public ResponseEntity<Object> update${className}(@Validated @RequestBody ${className} item){
-        ${permissionPath}Service.update(item);
+        ${changeClassName}Service.update(item);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -82,7 +82,7 @@ public class ${className}Controller {
     @ApiOperation("删除${apiAlias}")
     @PreAuthorize("@el.check('${permissionPath}:del')")
     public ResponseEntity<Object> delete${className}(@ApiParam(value = "传ID数组[]") @RequestBody ${pkColumnType}[] ids) {
-        ${permissionPath}Service.deleteAll(ids);
+        ${changeClassName}Service.deleteAll(ids);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
