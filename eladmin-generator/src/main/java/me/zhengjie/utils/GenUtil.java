@@ -181,13 +181,17 @@ public class GenUtil {
         for (String templateName : templates) {
             Template template = engine.getTemplate("front/" + templateName + ".ftl");
             String apiName = genMap.get("changeClassName").toString();
+            String apiPath = apiName;
+            String viewPath = apiName;
             if (genConfig.getSplit()) {
                 String[] split = genConfig.getTableName().split("_");
                 apiName = split[split.length - 1];
+                apiPath = String.join(File.separator, Arrays.copyOf(split, split.length - 1));
+                viewPath = String.join(File.separator, split);
             }
-            String filePath = getFrontFilePath(templateName, genConfig.getApiPath(), genConfig.getPath(), apiName);
+            String filePath = getFrontFilePath(templateName, "api" + File.separator + apiPath, "views" + File.separator + viewPath, apiName);
             assert filePath != null;
-            File file = new File(filePath);
+            File file = new File("front_gene_out/" + File.separator + filePath);
 
             // 如果非覆盖生成
             if (!genConfig.getCover() && FileUtil.exist(file)) {
@@ -220,7 +224,7 @@ public class GenUtil {
         String changeClassName = StringUtils.toCamelCase(genConfig.getTableName());
         // 表名分隔处理
         Boolean splitTableName = genConfig.getSplit();
-        String apiPath = splitTableName ? genConfig.getTableName().replaceAll("_", "/") : changeClassName;
+        String requestPath = splitTableName ? genConfig.getTableName().replaceAll("_", "/") : changeClassName;
         String permissionPath = splitTableName ? genConfig.getTableName().replaceAll("_", ":") : changeClassName;
         // 判断是否去除表前缀
         if (StringUtils.isNotEmpty(genConfig.getPrefix())) {
@@ -232,7 +236,9 @@ public class GenUtil {
         genMap.put("className", className);
         // 保存小写开头的类名
         genMap.put("changeClassName", changeClassName);
-        genMap.put("apiPath", apiPath);
+        // 请求路径
+        genMap.put("requestPath", requestPath);
+        // 权限路径
         genMap.put("permissionPath", permissionPath);
         // 存在 Timestamp 字段
         genMap.put("hasTimestamp", false);

@@ -40,7 +40,7 @@ import ${package}.service.dto.${className}Dto;
 @RestController
 @RequiredArgsConstructor
 @Api(tags = "${apiAlias}")
-@RequestMapping("/api/${apiPath}")
+@RequestMapping("/api/${requestPath}")
 public class ${className}Controller {
 
     private final ${className}Service ${changeClassName}Service;

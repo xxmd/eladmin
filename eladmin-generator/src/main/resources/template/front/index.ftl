@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import crud${className} from '@/api/${apiPath}'
+import crud${className} from '@/api/${requestPath}'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -123,7 +123,7 @@ export default {
   dicts: [<#if hasDict??><#list dicts as dict>'${dict}'<#if dict_has_next>, </#if></#list></#if>],
   </#if>
   cruds() {
-    return CRUD({ title: '${apiAlias}', url: 'api/${apiPath}', idField: '${pkChangeColName}', sort: '${pkChangeColName},desc', crudMethod: { ...crud${className} }})
+    return CRUD({ title: '${apiAlias}', url: 'api/${requestPath}', idField: '${pkChangeColName}', sort: '${pkChangeColName},desc', crudMethod: { ...crud${className} }})
   },
   data() {
     return {
