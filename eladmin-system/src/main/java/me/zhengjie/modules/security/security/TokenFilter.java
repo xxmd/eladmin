@@ -67,8 +67,6 @@ public class TokenFilter extends GenericFilterBean {
             OnlineUserDto onlineUserDto = onlineUserService.getOne(loginKey);
             // 请求 Token 必须与服务端为该在线会话保存的原始 Token 一致
             if (onlineUserDto != null && matchesOnlineToken(token, onlineUserDto)) {
-                // Token 续期判断
-                tokenProvider.checkRenewal(token);
                 // 获取认证信息，设置上下文
                 Authentication authentication = tokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);

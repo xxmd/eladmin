@@ -23,9 +23,12 @@ import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.security.config.enums.LoginCodeEnum;
 import me.zhengjie.utils.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 
 import java.awt.*;
+import java.util.Properties;
 
 /**
  * 登录验证码配置信息
@@ -37,11 +40,30 @@ import java.awt.*;
 @ConfigurationProperties(prefix = "login.code")
 public class CaptchaConfig {
 
+    private boolean enabled = false;
+
+    /** 可选的外部 YAML 文件，每次登录或获取验证码时读取开关。 */
+    private String configFile;
+
+    public boolean isEnabled() {
+        if (StringUtils.isBlank(configFile)) {
+            return enabled;
+        }
+        YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean();
+        yaml.setResources(new FileSystemResource(configFile));
+        Properties config = yaml.getObject();
+        String value = config == null ? null : config.getProperty("login.code.enabled");
+        if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)) {
+            return Boolean.parseBoolean(value);
+        }
+        throw new IllegalStateException("外部验证码配置须包含布尔值 login.code.enabled");
+    }
+
     /**
      * 验证码配置
      */
     @Getter
-    private LoginCodeEnum codeType;
+    private LoginCodeEnum codeType = LoginCodeEnum.ARITHMETIC;
 
     /**
      * 验证码有效期 分钟

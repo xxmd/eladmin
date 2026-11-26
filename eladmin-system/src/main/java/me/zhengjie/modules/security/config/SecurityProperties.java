@@ -46,11 +46,6 @@ public class SecurityProperties {
     private String base64Secret;
 
     /**
-     * 令牌过期时间 此处单位/毫秒
-     */
-    private Long tokenValidityInSeconds;
-
-    /**
      * 在线用户 key，根据 key 查询 redis 中在线用户的数据
      */
     private String onlineKey;
@@ -59,16 +54,6 @@ public class SecurityProperties {
      * 验证码 key
      */
     private String codeKey;
-
-    /**
-     * token 续期检查
-     */
-    private Long detect;
-
-    /**
-     * 续期时间
-     */
-    private Long renew;
 
     public String getTokenStartWith() {
         return tokenStartWith + " ";

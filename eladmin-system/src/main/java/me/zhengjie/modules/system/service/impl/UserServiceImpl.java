@@ -126,9 +126,9 @@ public class UserServiceImpl implements UserService {
         if (!Objects.equals(resources.getDept(),user.getDept())) {
             redisUtils.del(CacheKey.DATA_USER + resources.getId());
         }
-        // 如果用户被禁用，则清除用户登录信息
-        if(!resources.getEnabled()){
-            onlineUserService.kickOutForUsername(resources.getUsername());
+        // 停用账号或变更用户名时撤销旧会话。
+        if (!resources.getEnabled() || !Objects.equals(resources.getUsername(), user.getUsername())) {
+            onlineUserService.kickOutForUsername(user.getUsername());
         }
         user.setUsername(resources.getUsername());
         user.setEmail(resources.getEmail());
@@ -166,6 +166,7 @@ public class UserServiceImpl implements UserService {
         for (Long id : ids) {
             // 清理缓存
             UserDto user = findById(id);
+            onlineUserService.kickOutForUsername(user.getUsername());
             delCaches(user.getId(), user.getUsername());
         }
         userRepository.deleteAllByIdIn(ids);
@@ -196,6 +197,7 @@ public class UserServiceImpl implements UserService {
     public void updatePass(String username, String pass) {
         userRepository.updatePass(username, pass, new Date());
         flushCache(username);
+        onlineUserService.kickOutForUsername(username);
     }
 
     @Override

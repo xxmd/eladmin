@@ -50,6 +50,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -78,18 +79,11 @@ public class AuthController {
     @ApiOperation("登录授权")
     @AnonymousPostMapping(value = "/login")
     public ResponseEntity<Object> login(@Validated @RequestBody AuthUserDto authUser, HttpServletRequest request) throws Exception {
+        if (captchaConfig.isEnabled()) {
+            validateCaptcha(authUser);
+        }
         // 密码解密
         String password = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey, authUser.getPassword());
-        // 查询验证码
-        String code = redisUtils.get(authUser.getUuid(), String.class);
-        // 清除验证码
-        redisUtils.del(authUser.getUuid());
-        if (StringUtils.isBlank(code)) {
-            throw new BadRequestException("验证码不存在或已过期");
-        }
-        if (StringUtils.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code)) {
-            throw new BadRequestException("验证码错误");
-        }
         // 获取用户信息
         JwtUserDto jwtUser = userDetailsService.loadUserByUsername(authUser.getUsername());
         // 验证用户密码
@@ -115,6 +109,22 @@ public class AuthController {
         return ResponseEntity.ok(authInfo);
     }
 
+    private void validateCaptcha(AuthUserDto authUser) {
+        String uuid = authUser.getUuid();
+        String prefix = properties.getCodeKey();
+        if (uuid == null || !uuid.startsWith(prefix) || !uuid.substring(prefix.length()).matches("[0-9a-f]{32}")) {
+            throw new BadRequestException("验证码不存在或已过期");
+        }
+        String code = redisUtils.get(uuid, String.class);
+        redisUtils.del(uuid);
+        if (StringUtils.isBlank(code)) {
+            throw new BadRequestException("验证码不存在或已过期");
+        }
+        if (!code.equalsIgnoreCase(authUser.getCode())) {
+            throw new BadRequestException("验证码错误");
+        }
+    }
+
     @ApiOperation("获取用户信息")
     @GetMapping(value = "/info")
     public ResponseEntity<UserDetails> getUserInfo() {
@@ -125,6 +135,9 @@ public class AuthController {
     @ApiOperation("获取验证码")
     @AnonymousGetMapping(value = "/code")
     public ResponseEntity<Object> getCode() {
+        if (!captchaConfig.isEnabled()) {
+            return ResponseEntity.ok(Collections.singletonMap("enabled", false));
+        }
         // 获取运算的结果
         Captcha captcha = captchaConfig.getCaptcha();
         String uuid = properties.getCodeKey() + IdUtil.simpleUUID();
@@ -136,7 +149,8 @@ public class AuthController {
         // 保存
         redisUtils.set(uuid, captchaValue, captchaConfig.getExpiration(), TimeUnit.MINUTES);
         // 验证码信息
-        Map<String, Object> imgResult = new HashMap<String, Object>(2) {{
+        Map<String, Object> imgResult = new HashMap<String, Object>(3) {{
+            put("enabled", true);
             put("img", captcha.toBase64());
             put("uuid", uuid);
         }};

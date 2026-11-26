@@ -17,6 +17,7 @@ package me.zhengjie.modules.security.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.security.security.TokenProvider;
 import me.zhengjie.utils.PageResult;
 import me.zhengjie.modules.security.config.SecurityProperties;
@@ -29,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Zheng Jie
@@ -56,14 +56,17 @@ public class OnlineUserService {
         String id = tokenProvider.getId(token);
         String browser = StringUtils.getBrowser(request);
         String address = StringUtils.getCityInfo(ip);
-        OnlineUserDto onlineUserDto = null;
+        OnlineUserDto onlineUserDto;
         try {
             onlineUserDto = new OnlineUserDto(id, jwtUserDto.getUsername(), jwtUserDto.getUser().getNickName(), dept, browser , ip, address, EncryptUtils.desEncrypt(token), new Date());
         } catch (Exception e) {
             log.error(e.getMessage(),e);
+            throw new BadRequestException("无法创建登录会话");
         }
         String loginKey = tokenProvider.loginKey(token);
-        redisUtils.set(loginKey, onlineUserDto, properties.getTokenValidityInSeconds(), TimeUnit.MILLISECONDS);
+        if (!redisUtils.set(loginKey, onlineUserDto)) {
+            throw new BadRequestException("无法保存登录会话");
+        }
     }
 
     /**
@@ -142,7 +145,7 @@ public class OnlineUserService {
      * @param username /
      */
     public void kickOutForUsername(String username) {
-        String loginKey = properties.getOnlineKey() + username + "*";
+        String loginKey = properties.getOnlineKey() + username + ":*";
         redisUtils.scanDel(loginKey);
     }
 }
