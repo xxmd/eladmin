@@ -123,11 +123,7 @@ public class MenuServiceImpl implements MenuService {
         if(menuRepository.findByTitle(resources.getTitle()) != null){
             throw new EntityExistException(Menu.class,"title",resources.getTitle());
         }
-        if(StringUtils.isNotBlank(resources.getComponentName())){
-            if(menuRepository.findByComponentName(resources.getComponentName()) != null){
-                throw new EntityExistException(Menu.class,"componentName",resources.getComponentName());
-            }
-        }
+        normalizeAndValidateComponentName(resources);
         if (Long.valueOf(0L).equals(resources.getPid())) {
             resources.setPid(null);
         }
@@ -163,7 +159,7 @@ public class MenuServiceImpl implements MenuService {
             throw new EntityExistException(Menu.class,"title",resources.getTitle());
         }
 
-        if(resources.getPid().equals(0L)){
+        if (Long.valueOf(0L).equals(resources.getPid())) {
             resources.setPid(null);
         }
 
@@ -171,12 +167,7 @@ public class MenuServiceImpl implements MenuService {
         Long oldPid = menu.getPid();
         Long newPid = resources.getPid();
 
-        if(StringUtils.isNotBlank(resources.getComponentName())){
-            menu1 = menuRepository.findByComponentName(resources.getComponentName());
-            if(menu1 != null && !menu1.getId().equals(menu.getId())){
-                throw new EntityExistException(Menu.class,"componentName",resources.getComponentName());
-            }
-        }
+        normalizeAndValidateComponentName(resources);
         menu.setTitle(resources.getTitle());
         menu.setComponent(resources.getComponent());
         menu.setPath(resources.getPath());
@@ -195,6 +186,19 @@ public class MenuServiceImpl implements MenuService {
         updateSubCnt(newPid);
         // 清理缓存
         delCaches(resources.getId());
+    }
+
+    private void normalizeAndValidateComponentName(Menu resources) {
+        String name = resources.getComponentName();
+        if (StringUtils.isBlank(name)) {
+            // 唯一索引允许多条 NULL，空字符串则会互相冲突。
+            resources.setComponentName(null);
+            return;
+        }
+        Menu existing = menuRepository.findByComponentName(name);
+        if (existing != null && !Objects.equals(existing.getId(), resources.getId())) {
+            throw new EntityExistException(Menu.class, "componentName", name);
+        }
     }
 
     @Override
