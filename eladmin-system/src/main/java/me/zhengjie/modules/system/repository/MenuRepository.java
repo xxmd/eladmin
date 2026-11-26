@@ -31,13 +31,6 @@ import java.util.Set;
 public interface MenuRepository extends JpaRepository<Menu, Long>, JpaSpecificationExecutor<Menu> {
 
     /**
-     * 根据菜单标题查询
-     * @param title 菜单标题
-     * @return /
-     */
-    Menu findByTitle(String title);
-
-    /**
      * 根据组件名称查询
      * @param name 组件名称
      * @return /

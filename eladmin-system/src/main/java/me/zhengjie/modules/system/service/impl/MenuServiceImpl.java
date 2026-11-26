@@ -120,9 +120,6 @@ public class MenuServiceImpl implements MenuService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void create(Menu resources) {
-        if(menuRepository.findByTitle(resources.getTitle()) != null){
-            throw new EntityExistException(Menu.class,"title",resources.getTitle());
-        }
         normalizeAndValidateComponentName(resources);
         if (Long.valueOf(0L).equals(resources.getPid())) {
             resources.setPid(null);
@@ -153,12 +150,6 @@ public class MenuServiceImpl implements MenuService {
                 throw new BadRequestException(BAD_REQUEST);
             }
         }
-        Menu menu1 = menuRepository.findByTitle(resources.getTitle());
-
-        if(menu1 != null && !menu1.getId().equals(menu.getId())){
-            throw new EntityExistException(Menu.class,"title",resources.getTitle());
-        }
-
         if (Long.valueOf(0L).equals(resources.getPid())) {
             resources.setPid(null);
         }
@@ -272,12 +263,43 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public List<MenuVo> buildMenus(List<MenuDto> menuDtos) {
+        Set<String> componentNames = new HashSet<>();
+        collectComponentNames(menuDtos, componentNames);
+        return buildMenus(menuDtos, componentNames);
+    }
+
+    private void collectComponentNames(List<MenuDto> menuDtos, Set<String> componentNames) {
+        for (MenuDto menu : menuDtos) {
+            if (menu == null) {
+                continue;
+            }
+            if (StringUtils.isNotBlank(menu.getComponentName())) {
+                componentNames.add(menu.getComponentName());
+            }
+            if (CollectionUtil.isNotEmpty(menu.getChildren())) {
+                collectComponentNames(menu.getChildren(), componentNames);
+            }
+        }
+    }
+
+    private String routeName(MenuDto menu, Set<String> componentNames) {
+        if (StringUtils.isNotBlank(menu.getComponentName())) {
+            return menu.getComponentName();
+        }
+        String name = "MenuRoute_" + menu.getId();
+        while (componentNames.contains(name)) {
+            name = "_" + name;
+        }
+        return name;
+    }
+
+    private List<MenuVo> buildMenus(List<MenuDto> menuDtos, Set<String> componentNames) {
         List<MenuVo> list = new LinkedList<>();
         menuDtos.forEach(menuDTO -> {
                     if (menuDTO!=null){
                         List<MenuDto> menuDtoList = menuDTO.getChildren();
                         MenuVo menuVo = new MenuVo();
-                        menuVo.setName(ObjectUtil.isNotEmpty(menuDTO.getComponentName())  ? menuDTO.getComponentName() : menuDTO.getTitle());
+                        menuVo.setName(routeName(menuDTO, componentNames));
                         // 一级目录需要加斜杠，不然会报警告
                         menuVo.setPath(menuDTO.getPid() == null ? "/" + menuDTO.getPath() :menuDTO.getPath());
                         menuVo.setHidden(menuDTO.getHidden());
@@ -296,7 +318,7 @@ public class MenuServiceImpl implements MenuService {
                         if(CollectionUtil.isNotEmpty(menuDtoList)){
                             menuVo.setAlwaysShow(true);
                             menuVo.setRedirect("noredirect");
-                            menuVo.setChildren(buildMenus(menuDtoList));
+                            menuVo.setChildren(buildMenus(menuDtoList, componentNames));
                             // 处理是一级菜单并且没有子菜单的情况
                         } else if(menuDTO.getPid() == null){
                             MenuVo menuVo1 = getMenuVo(menuDTO, menuVo);

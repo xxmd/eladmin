@@ -372,7 +372,6 @@ CREATE TABLE `sys_menu` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`menu_id`) USING BTREE,
   UNIQUE KEY `uniq_name` (`name`),
-  UNIQUE KEY `uniq_title` (`title`),
   KEY `idx_pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='系统菜单';
 
