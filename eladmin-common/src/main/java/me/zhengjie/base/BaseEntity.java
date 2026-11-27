@@ -43,6 +43,18 @@ import java.sql.Timestamp;
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntity implements Serializable {
 
+    @Column(name = "enabled")
+    @ApiModelProperty(value = "是否启用")
+    private Boolean enabled;
+
+    @Column(name = "sort")
+    @ApiModelProperty(value = "排序")
+    private Integer sort;
+
+    @Column(name = "remark")
+    @ApiModelProperty(value = "备注")
+    private String remark;
+
     @CreatedBy
     @Column(name = "create_by", updatable = false)
     @ApiModelProperty(value = "创建人", hidden = true)

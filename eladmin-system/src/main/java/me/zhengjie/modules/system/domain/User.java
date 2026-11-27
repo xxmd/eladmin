@@ -95,9 +95,11 @@ public class User extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "密码")
     private String password;
 
+    @Override
     @NotNull
-    @ApiModelProperty(value = "是否启用")
-    private Boolean enabled;
+    public Boolean getEnabled() {
+        return super.getEnabled();
+    }
 
     @JSONField(deserialize = false)
     @ApiModelProperty(value = "是否为admin账号", hidden = true)

@@ -88,6 +88,9 @@ CREATE TABLE `mnt_app` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`app_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='应用管理';
 
@@ -111,6 +114,9 @@ CREATE TABLE `mnt_database` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`db_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='数据库管理';
 
@@ -131,6 +137,9 @@ CREATE TABLE `mnt_deploy` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`deploy_id`) USING BTREE,
   KEY `idx_app_id` (`app_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='部署管理';
@@ -194,6 +203,9 @@ CREATE TABLE `mnt_server` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`server_id`) USING BTREE,
   KEY `idx_ip` (`ip`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='服务器管理';
@@ -219,6 +231,8 @@ CREATE TABLE `sys_dept` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`dept_id`) USING BTREE,
   KEY `idx_pid` (`pid`),
   KEY `idx_enabled` (`enabled`)
@@ -249,6 +263,9 @@ CREATE TABLE `sys_dict` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`dict_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='数据字典';
 
@@ -275,6 +292,9 @@ CREATE TABLE `sys_dict_detail` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`detail_id`) USING BTREE,
   KEY `idx_dict_id` (`dict_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='数据字典详情';
@@ -304,6 +324,8 @@ CREATE TABLE `sys_job` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`job_id`) USING BTREE,
   UNIQUE KEY `uniq_name` (`name`),
   KEY `idx_enabled` (`enabled`)
@@ -370,6 +392,9 @@ CREATE TABLE `sys_menu` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`menu_id`) USING BTREE,
   UNIQUE KEY `uniq_name` (`name`),
   KEY `idx_pid` (`pid`)
@@ -474,9 +499,12 @@ CREATE TABLE `sys_quartz_job` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`job_id`) USING BTREE,
   KEY `idx_is_pause` (`is_pause`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='定时任务';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='定时任务';
 
 -- ----------------------------
 -- Records of sys_quartz_job
@@ -526,6 +554,9 @@ CREATE TABLE `sys_role` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`role_id`) USING BTREE,
   UNIQUE KEY `uniq_name` (`name`),
   KEY `idx_level` (`level`)
@@ -693,6 +724,8 @@ CREATE TABLE `sys_user` (
   `pwd_reset_time` datetime DEFAULT NULL COMMENT '修改密码的时间',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`user_id`) USING BTREE,
   UNIQUE KEY `uniq_email` (`email`) USING BTREE,
   UNIQUE KEY `uniq_username` (`username`) USING BTREE,
@@ -809,6 +842,9 @@ CREATE TABLE `tool_local_storage` (
   `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT NULL COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`storage_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='本地存储';
 
@@ -834,6 +870,9 @@ CREATE TABLE `tool_s3_storage` (
   `update_by` varchar(255) NOT NULL COMMENT '更新者',
   `create_time` datetime NOT NULL COMMENT '创建日期',
   `update_time` datetime NOT NULL COMMENT '更新时间',
+  `enabled` bit(1) DEFAULT NULL COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`storage_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='s3 协议对象存储';
 
